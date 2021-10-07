@@ -23,11 +23,7 @@ function s:write_result(message) abort
   endif
   let script_file = tempname()
   call writefile(lines, script_file)
-  try
-    let result = execute('source ' . script_file)
-  catch
-    let result = v:exception
-  endtry
+  silent! let result = execute('source ' . script_file)
   if filereadable(script_file)
     call delete(script_file)
   endif
