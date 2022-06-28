@@ -14,7 +14,7 @@ See [`src/index.ts`](src/index.ts) for full documentation.
 
 ## Requirements
 
-- Node.js v12.10.0+
+- Node.js v14+
 - Docker
 - `mkfifo(1)`
 
