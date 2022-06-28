@@ -97,7 +97,8 @@ export = function(robot: hubot.Robot): void {
       }
     } catch (e) {
       const line = script.split("\n")[0];
-      res.send(`${e.message}: ${line}`);
+      const message = e instanceof Error ? e.message : "Error";
+      res.send(`${message}: ${line}`);
     }
   });
 }
