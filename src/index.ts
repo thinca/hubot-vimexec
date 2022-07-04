@@ -25,6 +25,13 @@ import {VimExecutor} from "./vim_executor";
 import {seqPattern} from "./seq_pattern";
 
 export = function(robot: hubot.Robot): void {
+  const info = (msg: string) => {
+    robot.logger.info(`vimexec: ${msg}`);
+  };
+  const debug = (msg: string) => {
+    robot.logger.debug(`vimexec: ${msg}`);
+  };
+
   const vimExecutor = new VimExecutor({group: process.env.HUBOT_VIMEXEC_GROUP});
   vimExecutor.on("start", () => {
     console.log("Vim started");
@@ -46,7 +53,7 @@ export = function(robot: hubot.Robot): void {
       return /(?!)/;  // never match
     }
   })();
-  robot.logger.info(`ignoreRegExp: ${JSON.stringify(ignoreRegExp.source)}`);
+  info(`ignoreRegExp: ${JSON.stringify(ignoreRegExp.source)}`);
 
   const enabledRoomsRegExp = ((): RegExp => {
     if (process.env.HUBOT_VIMEXEC_ENABLE_ROOMS) {
@@ -63,14 +70,14 @@ export = function(robot: hubot.Robot): void {
       return /(?:)/;  // always match
     }
   })();
-  robot.logger.info(`enabledRoomsRegExp: ${JSON.stringify(enabledRoomsRegExp.source)}`);
+  info(`enabledRoomsRegExp: ${JSON.stringify(enabledRoomsRegExp.source)}`);
 
   const execute = async (text: string, user: hubot.User): Promise<string> => {
     const script = text.slice(1);
     try {
       const rawResult = await vimExecutor.execute(script);
       const result = rawResult.replace(/^(?:[^\S\n]*\n)*|\n\s*$/g, "");
-      robot.logger.info(`user: ${user.name}\nscript:\n${script}\n\nresult:\n${result}`);
+      info(`user: ${user.name}\nscript:\n${script}\n\nresult:\n${result}`);
       if (result.length === 0) {
         const line = script.split("\n")[0];
         return `done with no output: ${line}`;
@@ -95,7 +102,7 @@ export = function(robot: hubot.Robot): void {
       return;
     }
     if (ignoreRegExp.test(script)) {
-      robot.logger.debug(`Ignore command: ${script}`);
+      debug(`Ignore command: ${script}`);
       return;
     }
 
@@ -110,15 +117,15 @@ export = function(robot: hubot.Robot): void {
       return;
     }
     if (!enabledRoomsRegExp.test(room)) {
-      robot.logger.debug(`Ignore room: ${room}`);
+      debug(`Ignore room: ${room}`);
       return;
     }
     if (/^:\S+:/.test(text)) {
-      robot.logger.debug(`Ignore emoji: ${text}`);
+      debug(`Ignore emoji: ${text}`);
       return;
     }
     if (ignoreRegExp.test(text)) {
-      robot.logger.debug(`Ignore command: ${text}`);
+      debug(`Ignore command: ${text}`);
       return;
     }
 
