@@ -65,6 +65,44 @@ export = function(robot: hubot.Robot): void {
   })();
   robot.logger.info(`enabledRoomsRegExp: ${JSON.stringify(enabledRoomsRegExp.source)}`);
 
+  const execute = async (text: string, user: hubot.User): Promise<string> => {
+    const script = text.slice(1);
+    try {
+      const rawResult = await vimExecutor.execute(script);
+      const result = rawResult.replace(/^(?:[^\S\n]*\n)*|\n\s*$/g, "");
+      robot.logger.info(`user: ${user.name}\nscript:\n${script}\n\nresult:\n${result}`);
+      if (result.length === 0) {
+        const line = script.split("\n")[0];
+        return `done with no output: ${line}`;
+      } else {
+        return "```\n" + result + "\n```";
+      }
+    } catch (e) {
+      const line = script.split("\n")[0];
+      const message = e instanceof Error ? e.message : "Error";
+      return `${message}: ${line}`;
+    }
+  };
+
+  robot.respond(/:/i, async (res: hubot.Response) => {
+    const {user, text} = res.message;
+
+    if (!text) {
+      return;
+    }
+    const script = text.replace(/^\S+\s+/, "");
+    if (script[0] !== ":") {
+      return;
+    }
+    if (ignoreRegExp.test(script)) {
+      robot.logger.debug(`Ignore command: ${script}`);
+      return;
+    }
+
+    const result = await execute(script, user);
+    res.reply(result);
+  });
+
   robot.hear(/^:/i, async (res: hubot.Response) => {
     const {room, user, text} = res.message;
 
@@ -84,21 +122,7 @@ export = function(robot: hubot.Robot): void {
       return;
     }
 
-    const script = text.slice(1);
-    try {
-      const rawResult = await vimExecutor.execute(script);
-      const result = rawResult.replace(/^(?:[^\S\n]*\n)*|\n\s*$/g, "");
-      robot.logger.info(`user: ${user.name}\nscript:\n${script}\n\nresult:\n${result}`);
-      if (result.length === 0) {
-        const line = script.split("\n")[0];
-        res.send(`done with no output: ${line}`);
-      } else {
-        res.send("```\n" + result + "\n```");
-      }
-    } catch (e) {
-      const line = script.split("\n")[0];
-      const message = e instanceof Error ? e.message : "Error";
-      res.send(`${message}: ${line}`);
-    }
+    const result = await execute(text, user);
+    res.send(result);
   });
 }
