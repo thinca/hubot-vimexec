@@ -28,6 +28,7 @@
     "typescript": "^4.7.4"
   },
   "files": [
+    "bin",
     "scripts",
     "vim-scripts"
   ],
