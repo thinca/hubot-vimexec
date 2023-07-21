@@ -36,7 +36,7 @@ export = function(robot: hubot.Robot): void {
   vimExecutor.on("start", () => {
     console.log("Vim started");
   });
-  vimExecutor.on("exit", (exitCode: number) => {
+  vimExecutor.on("exit", (exitCode: unknown) => {
     console.log(`Vim exited: ${exitCode}`);
   });
   vimExecutor.start();

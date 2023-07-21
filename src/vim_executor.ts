@@ -87,7 +87,7 @@ export class VimExecutor {
     }
   }
 
-  on(event: string, callback: (...args: any[]) => void): void {
+  on(event: string, callback: (...args: unknown[]) => void): void {
     this.eventEmitter.on(event, callback);
   }
 
