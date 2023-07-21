@@ -42,7 +42,7 @@
   "license": "Zlib",
   "main": "scripts/index",
   "peerDependencies": {
-    "hubot": "3.x"
+    "hubot": "*"
   },
   "repository": {
     "type": "git",
